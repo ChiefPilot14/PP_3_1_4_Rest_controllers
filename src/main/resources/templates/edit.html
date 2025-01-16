@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование пользователя</title>
+    <script>
+        function updateFormAction() {
+            const form = document.querySelector('form');
+            const url = `/save/${form['id'].value}/${form['name'].value}/${form['lastName'].value}/${form['age'].value}`;
+            form.action = url;
+        }
+    </script>
+</head>
+<body>
+<h1>Редактирование пользователя</h1>
+<form action="#" onsubmit="updateFormAction()" method="post" th:object="${user}">
+    <input type="hidden" th:field="*{id}" />
+    <p>
+        Имя:<br/>
+        <input type="text" th:field="*{name}" required  onchange="updateFormAction()"/>
+    </p>
+    <p>
+        Фамилия:<br/>
+        <input type="text" th:field="*{lastName}" required  onchange="updateFormAction()"/>
+    </p>
+    <p>
+        Возраст:<br/>
+        <input type="number" min="0" max="127" th:field="*{age}" required onchange="updateFormAction()"/>
+    </p>
+    <button type="submit">Сохранить изменения</button>
+</form>
+</body>
+</html>
