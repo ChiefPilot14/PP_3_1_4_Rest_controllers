@@ -1,18 +1,11 @@
 package ru.kata.spring.boot_security.demo.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -118,11 +111,14 @@ public class User implements UserDetails {
         return Objects.hash(name, lastName, age);
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toSet());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        }
+        return authorities;
     }
 
     @Override
@@ -155,4 +151,8 @@ public class User implements UserDetails {
         return true;
     }
 
+    public boolean hasAuthority(String authority) {
+        return getAuthorities().stream()
+                .anyMatch(granted -> granted.getAuthority().equals(authority));
+    }
 }

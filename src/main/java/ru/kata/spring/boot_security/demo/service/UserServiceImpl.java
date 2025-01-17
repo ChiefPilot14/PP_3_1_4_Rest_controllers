@@ -2,14 +2,17 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserDao userDao;
 
     @Autowired
@@ -18,11 +21,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(String name, String lastName, byte age) {
-        addUser(name, lastName, age);
+    @Transactional
+    public void createUser(User user) {
+        userDao.save(user);
     }
 
     @Override
+    @Transactional
+    public void updateUser(User user) {
+        userDao.save(user);
+    }
+
+    @Override
+    @Transactional
     public void removeUserById(long id) {
         userDao.deleteById(id);
     }
@@ -36,23 +47,4 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return userDao.findAll();
     }
-
-    @Override
-    public void addUser(String name, String lastName, byte age) {
-        User user = new User(name, lastName, age);
-        userDao.save(user);
-    }
-
-    @Override
-    public void saveUserById(long id, String name, String lastName, byte age) {
-        Optional<User> optionalUser = userDao.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setName(name);
-            user.setLastName(lastName);
-            user.setAge(age);
-            userDao.save(user);
-        }
-    }
-
 }

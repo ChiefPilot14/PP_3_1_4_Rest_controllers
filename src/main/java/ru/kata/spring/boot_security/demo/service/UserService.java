@@ -10,16 +10,14 @@ import java.util.Optional;
 public interface UserService {
     final UserDao userDao = null;
 
-    void saveUser(String name, String lastName, byte age);
+    public void createUser(User user);
+
+    public void updateUser(User user);
 
     void removeUserById(long id);
-
-    void saveUserById(long id, String name, String lastName, byte age);
 
     Optional<User> getUserById(long id);
 
     List<User> getAllUsers();
-
-    public void addUser(String name, String lastName, byte age);
 
 }
