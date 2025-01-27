@@ -6,7 +6,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -22,12 +21,7 @@ public class User implements UserDetails {
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 
     @Column
     private String name;
@@ -37,6 +31,16 @@ public class User implements UserDetails {
 
     @Column
     private Byte age;
+
+    public User(Long id, String username, String password, Set<Role> roles, String name, String lastName, Byte age) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.name = name;
+        this.lastName = lastName;
+        this.age = age;
+    }
 
     public User(String username, String password, String name, String lastName, Byte age) {
         this.username = username;
@@ -60,6 +64,9 @@ public class User implements UserDetails {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+    }
+
+    public User(long id) {
     }
 
     public Long getId() {
@@ -93,9 +100,21 @@ public class User implements UserDetails {
     public void setAge(Byte age) {
         this.age = age;
     }
-    @Override
-    public String toString() {
-        return "User{" + "id=" + id + ", name='" + name + '\'' + ", lastName='" + lastName + '\'' + ", age=" + age + '}';
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     @Override
@@ -103,14 +122,26 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName) && Objects.equals(age, user.age);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles) && Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName) && Objects.equals(age, user.age);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, lastName, age);
+        return Objects.hash(id, username, password, roles, name, lastName, age);
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                ", name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                '}';
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -123,12 +154,12 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.username;
     }
 
     @Override

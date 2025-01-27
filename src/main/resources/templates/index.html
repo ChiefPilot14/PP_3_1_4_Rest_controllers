@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Spring Security Example</title>
+    <meta charset="UTF-8"/>
+    <title>Home Page</title>
 </head>
 <body>
-<h1>Welcome to Index PAGE!</h1>
-
-<a th:href="@{/users}">Список пользователей</a>
-
+<p>Welcome to Home Page!</p>
+<br>
+<a href="/admin">admin</a>
+<br>
+<a href="/user">user</a>
+<br>
+<a href="/login">login</a>
+<!--<p sec:authorize="isAuthenticated()">-->
+<!--    Logged in as: <span sec:authentication="name"></span>-->
+<!--</p>-->
+<!--<a href="/logout" th:href="@{/logout}" th:if="${#authorization.expression('isAuthenticated()')}">Logout</a>-->
 </body>
 </html>
