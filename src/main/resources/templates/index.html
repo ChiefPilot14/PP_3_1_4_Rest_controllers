@@ -13,9 +13,12 @@
 <a href="/user">user</a>
 <br>
 <a href="/login">login</a>
-<!--<p sec:authorize="isAuthenticated()">-->
-<!--    Logged in as: <span sec:authentication="name"></span>-->
-<!--</p>-->
-<!--<a href="/logout" th:href="@{/logout}" th:if="${#authorization.expression('isAuthenticated()')}">Logout</a>-->
+<br>
+<a href="/registration">registration</a>
+<sec:authorize access="isAuthenticated()">
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Выход"/>
+    </form>
+</sec:authorize>
 </body>
 </html>

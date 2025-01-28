@@ -36,6 +36,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void createUser(User user) {
+        if (user.getUsername().equals(userDao.findByUsername(user.getUsername()))) {
+            throw new EntityNotFoundException("Пользователь с username=" + user.getUsername() + " уже существует");
+        }
         user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userDao.save(user);
@@ -75,14 +78,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
         User userEntity = optionalUser.get();
-        System.out.println("Password from DB: " + userEntity.getPassword());
 
         if (userEntity.getPassword() == null || userEntity.getPassword().isBlank()) {
             throw new InternalAuthenticationServiceException("Password is missing for user: " + username);
         }
 
         List<GrantedAuthority> authorities = userEntity.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
         if (authorities.isEmpty()) {
@@ -94,5 +96,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.getPassword(),
                 authorities
         );
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return userDao.findByUsername(username);
     }
 }

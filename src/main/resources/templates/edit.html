@@ -5,8 +5,9 @@
     <title>Редактирование пользователя</title>
 </head>
 <body>
+<a href="/">На главную</a>
 <h1>Редактирование пользователя</h1>
-<form action="#" th:action="@{'/users/' + ${user.id} + '/update'}" method="post" th:object="${user}">
+<form action="#" th:action="@{'/admin/' + ${user.id} + '/update'}" method="post" th:object="${user}">
     <input type="hidden" th:field="*{id}" />
     <p>
         Имя:<br/>
@@ -21,6 +22,9 @@
         <input type="number" min="0" max="127" th:field="*{age}" required />
     </p>
     <button type="submit">Сохранить изменения</button>
+</form>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Выход"/>
 </form>
 </body>
 </html>

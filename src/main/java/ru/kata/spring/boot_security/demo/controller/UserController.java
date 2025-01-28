@@ -7,9 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
     private final UserService userService;
 
     @Autowired
@@ -17,16 +21,14 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/new")
-    public String showNewUserForm(Model model) {
-        model.addAttribute("user", new User());
-        return "add-user";
+    @GetMapping
+    public String showUserForm(Model model, Principal principal) {
+        String username = principal.getName();
+        Optional<User> user = userService.findByUsername(username);
+        if (user.isPresent()) {
+            model.addAttribute("user", user.get());
+        }
+        return "user";
     }
 
-    @PostMapping("/create")
-    public String createUser(@ModelAttribute("user") User user) {
-        userService.createUser(user);
-        return "redirect:/users";
-    }
 }
-

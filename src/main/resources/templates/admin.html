@@ -10,12 +10,14 @@
     </style>
 </head>
 <body>
+<a href="/">На главную</a>
 <table>
     <tr>
         <th>id</th>
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Возраст</th>
+        <th>Имя пользователя</th>
         <th> </th>
         <th> </th>
     </tr>
@@ -24,12 +26,16 @@
         <td th:text="${user.name}"></td>
         <td th:text="${user.lastName}"></td>
         <td th:text="${user.age}"></td>
-        <td><a th:href="@{'/users/' + ${user.id} + '/delete'}">удалить</a></td>
-        <td><a th:href="@{'/users/' + ${user.id} + '/edit'}">редактировать</a></td>
+        <td th:text="${user.username}"></td>
+        <td><a th:href="@{'/admin/' + ${user.id} + '/delete'}">удалить</a></td>
+        <td><a th:href="@{'/admin/' + ${user.id} + '/edit'}">редактировать</a></td>
     </tr>
 </table>
 <div style="margin-top: 20px; text-align: left;">
-    <button type="submit"><a th:href="@{/users/new}">Добавить</a></button>
+    <button type="submit"><a th:href="@{/registration}">Добавить</a></button>
 </div>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Выход"/>
+</form>
 </body>
 </html>
