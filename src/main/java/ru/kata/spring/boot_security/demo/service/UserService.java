@@ -20,4 +20,6 @@ public interface UserService {
     UserDetails loadUserByUsername(String username);
 
     Optional<User> findByUsername(String username);
+
+    Optional<User> getUserById(long id);
 }

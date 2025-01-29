@@ -16,9 +16,7 @@ import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,11 +58,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         existingUser.setName(user.getName());
         existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());
+        existingUser.setUsername(user.getUsername());
+        existingUser.setAge(user.getAge());
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
+        Set<Role> updatedRoles = new HashSet<>(user.getRoles());
         existingUser.getRoles().clear();
-
-        existingUser.setRoles(user.getRoles());
+        existingUser.setRoles(updatedRoles);
 
         userDao.save(existingUser);
     }
@@ -117,5 +117,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
+    }
+
+    @Override
+    public Optional<User> getUserById(long id) {
+        return userDao.findById(id);
     }
 }

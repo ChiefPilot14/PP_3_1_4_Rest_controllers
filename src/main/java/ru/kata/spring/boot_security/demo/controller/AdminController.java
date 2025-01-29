@@ -1,10 +1,11 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
@@ -12,6 +13,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -54,21 +56,38 @@ public class AdminController {
             @ModelAttribute("user") User user,
             @RequestParam(value = "roles[]", required = false) Long[] rolesIds
     ) {
-        user.setId(userId);
+        User currentUser = userService.getUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с id=" + userId + " не найден"));
+
+        if (!StringUtils.isEmpty(user.getPassword())) {
+            currentUser.setPassword(user.getPassword());
+        } else {
+            user.setPassword(currentUser.getPassword());
+        }
+
+        currentUser.setName(user.getName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setAge(user.getAge());
+        currentUser.setEmail(user.getEmail());
 
         Set<Role> roles = new HashSet<>();
         if (rolesIds != null) {
             for (Long roleId : rolesIds) {
-                Role role = roleService.findById(roleId)
-                        .orElseThrow(() -> new EntityNotFoundException("Роль с id=" + roleId + " не найдена"));
-                roles.add(role);
+                System.out.println("Проверка роли с id = " + roleId); // Добавляем логирование для отладки
+
+                Optional<Role> optionalRole = roleService.findById(roleId);
+
+                if (optionalRole.isPresent()) {
+                    Role role = optionalRole.get();
+                    roles.add(role);
+                } else {
+                    throw new EntityNotFoundException("Роль с id=" + roleId + " не найдена");
+                }
             }
         }
+        currentUser.setRoles(roles);
 
-        user.setRoles(roles);
-
-        userService.updateUser(user);
+        userService.updateUser(currentUser);
         return "redirect:/admin";
     }
-
 }
