@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,14 +33,20 @@ public class User implements UserDetails {
     @Column
     private Byte age;
 
-    public User(Long id, String username, String password, Set<Role> roles, String name, String lastName, Byte age) {
+    @Column
+    @Email(message = "Некорректный email")
+    private String email;
+
+    public User(Long id, String username, String password, Set<Role> roles, String name, String lastName, Byte age,
+                String email) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.roles = roles == null ? new HashSet<>() : roles;
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+        this.email = email;
     }
 
     public User(String username, String password, String name, String lastName, Byte age) {
@@ -48,15 +55,18 @@ public class User implements UserDetails {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+        this.roles = new HashSet<>();
     }
 
     public User() {
-
+        this.roles = new HashSet<>();
     }
+
     public User(String name, String lastName, Byte age) {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+        this.roles = new HashSet<>();
     }
 
     public User(Long id, String name, String lastName, Byte age) {
@@ -64,9 +74,15 @@ public class User implements UserDetails {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
+        this.roles = new HashSet<>();
     }
 
     public User(long id) {
+        this.roles = new HashSet<>();
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
     }
 
     public Long getId() {
@@ -114,20 +130,28 @@ public class User implements UserDetails {
     }
 
     public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+        this.roles.clear(); // Очищаем старую коллекцию
+        if (roles != null) {
+            this.roles.addAll(roles); // Добавляем новую коллекцию
+        }
+    }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles) && Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName) && Objects.equals(age, user.age);
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getPassword(), user.getPassword()) && Objects.equals(getRoles(), user.getRoles()) && Objects.equals(getName(), user.getName()) && Objects.equals(getLastName(), user.getLastName()) && Objects.equals(getAge(), user.getAge()) && Objects.equals(getEmail(), user.getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, roles, name, lastName, age);
+        return Objects.hash(getUsername(), getPassword(), getRoles(), getName(), getLastName(), getAge(), getEmail());
     }
 
     @Override
@@ -140,6 +164,7 @@ public class User implements UserDetails {
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", age=" + age +
+                ", email='" + email + '\'' +
                 '}';
     }
 

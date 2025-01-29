@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import ru.kata.spring.boot_security.demo.dao.RoleDao;
 import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final UserDao userDao;
+    private final RoleDao roleDao;
 
     @Autowired
-    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao) {
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleDao roleDao) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
+        this.roleDao = roleDao;
     }
 
     @Override
@@ -51,7 +54,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new EntityNotFoundException("Пользователь с id=" + user.getId() + " не найден");
         }
 
-        userDao.save(user);
+        User existingUser = userDao.findById(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + user.getId() + " не найден"));
+
+        existingUser.setName(user.getName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        existingUser.getRoles().clear();
+
+        existingUser.setRoles(user.getRoles());
+
+        userDao.save(existingUser);
     }
 
     @Override
@@ -64,6 +79,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public List<User> getAllUsers() {
         return userDao.findAll();
     }
+
 
     @Override
     public User getUserOrCreateIfNotExists(long id) {

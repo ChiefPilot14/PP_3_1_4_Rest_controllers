@@ -17,7 +17,8 @@
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Возраст</th>
-        <th>Имя пользователя</th>
+        <th>Email</th>
+        <th>Роли</th>
         <th> </th>
         <th> </th>
     </tr>
@@ -26,7 +27,8 @@
         <td th:text="${user.name}"></td>
         <td th:text="${user.lastName}"></td>
         <td th:text="${user.age}"></td>
-        <td th:text="${user.username}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:each="role : ${user.roles}" th:text="${role.name}"></td>
         <td><a th:href="@{'/admin/' + ${user.id} + '/delete'}">удалить</a></td>
         <td><a th:href="@{'/admin/' + ${user.id} + '/edit'}">редактировать</a></td>
     </tr>
