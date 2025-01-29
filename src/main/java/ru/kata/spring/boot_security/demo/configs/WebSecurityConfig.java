@@ -20,34 +20,34 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SpringSecurityDialect springSecurityDialect(){
+    public SpringSecurityDialect springSecurityDialect() {
         return new SpringSecurityDialect();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests()
-                .requestMatchers("/", "/login", "/registration").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
-                .anyRequest().authenticated();
+        http.authorizeHttpRequests(
+                        auth -> auth.requestMatchers("/", "/login", "/registration").permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
+                                .anyRequest().authenticated()
+                )
+                .formLogin(form -> form.loginPage("/login"))
 
-        http.formLogin(form -> form.loginPage("/login"));
+                .formLogin(login -> login.successHandler((request,
+                                                          response, authentication) -> {
+                    String role = authentication.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("No roles found"));
 
-        http.formLogin(login -> login.successHandler((request,
-                                                      response, authentication) -> {
-            String role = authentication.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("No roles found"));
-
-            if ("ROLE_ADMIN".equals(role)) {
-                response.sendRedirect("/admin");
-            } else if ("ROLE_USER".equals(role)) {
-                response.sendRedirect("/user");
-            }
-        }));
+                    if ("ROLE_ADMIN".equals(role)) {
+                        response.sendRedirect("/admin");
+                    } else if ("ROLE_USER".equals(role)) {
+                        response.sendRedirect("/user");
+                    }
+                }));
 
         http.logout(logout -> logout
                 .logoutUrl("/logout")
