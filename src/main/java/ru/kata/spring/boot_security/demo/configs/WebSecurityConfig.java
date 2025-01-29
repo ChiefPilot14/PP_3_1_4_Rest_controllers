@@ -15,17 +15,17 @@ import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 public class WebSecurityConfig {
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    public BCryptPasswordEncoder createBCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SpringSecurityDialect springSecurityDialect() {
+    public SpringSecurityDialect getSpringSecurityDialect() {
         return new SpringSecurityDialect();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configureFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(
                         auth -> auth.requestMatchers("/", "/login", "/registration").permitAll()

@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserService {
     void createUser(User user);
 
-    void updateUser(User user);
+    void updateUser(Long userId, User updatedUser, Long[] rolesIds);
 
     void deleteUser(long id);
 

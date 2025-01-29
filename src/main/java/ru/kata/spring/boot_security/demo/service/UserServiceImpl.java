@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 import ru.kata.spring.boot_security.demo.dao.RoleDao;
 import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final UserDao userDao;
-    private final RoleDao roleDao;
+    private final RoleService roleService;
 
     @Autowired
-    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleDao roleDao) {
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleDao roleDao, RoleService roleService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
-        this.roleDao = roleDao;
+        this.roleService = roleService;
     }
 
     @Override
@@ -47,23 +48,33 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        if (!userDao.existsById(user.getId())) {
-            throw new EntityNotFoundException("Пользователь с id=" + user.getId() + " не найден");
+    public void updateUser(Long userId, User updatedUser, Long[] rolesIds) {
+        User existingUser = userDao.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + userId + " не найден"));
+
+        if (!StringUtils.isEmpty(updatedUser.getPassword())) {
+            existingUser.setPassword(bCryptPasswordEncoder.encode(updatedUser.getPassword()));
+        } else {
+            updatedUser.setPassword(existingUser.getPassword()); // Сохраняем существующий пароль, если новый не передан
         }
 
-        User existingUser = userDao.findById(user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + user.getId() + " не найден"));
+        existingUser.setName(updatedUser.getName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setUsername(updatedUser.getUsername());
+        existingUser.setAge(updatedUser.getAge());
 
-        existingUser.setName(user.getName());
-        existingUser.setLastName(user.getLastName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setUsername(user.getUsername());
-        existingUser.setAge(user.getAge());
-        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        Set<Role> updatedRoles = new HashSet<>(user.getRoles());
-        existingUser.getRoles().clear();
+        Set<Role> updatedRoles = new HashSet<>();
+        if (rolesIds != null) {
+            for (Long roleId : rolesIds) {
+                Optional<Role> optionalRole = roleService.findById(roleId);
+                if (optionalRole.isPresent()) {
+                    updatedRoles.add(optionalRole.get());
+                } else {
+                    throw new EntityNotFoundException("Роль с id=" + roleId + " не найдена");
+                }
+            }
+        }
         existingUser.setRoles(updatedRoles);
 
         userDao.save(existingUser);
