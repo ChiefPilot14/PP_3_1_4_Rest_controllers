@@ -21,7 +21,7 @@ public class User implements UserDetails {
     @Column
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Role> roles;
 
     @Column
@@ -37,45 +37,45 @@ public class User implements UserDetails {
     @Email(message = "Некорректный email")
     private String email;
 
-    public User(Long id, String username, String password, Set<Role> roles, String name, String lastName, Byte age,
-                String email) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.roles = roles == null ? new HashSet<>() : roles;
-        this.name = name;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
-    }
-
-    public User(String username, String password, String name, String lastName, Byte age) {
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.lastName = lastName;
-        this.age = age;
-        this.roles = new HashSet<>();
-    }
+//    public User(Long id, String username, String password, Set<Role> roles, String name, String lastName, Byte age,
+//                String email) {
+//        this.id = id;
+//        this.username = username;
+//        this.password = password;
+//        this.roles = roles == null ? new HashSet<>() : roles;
+//        this.name = name;
+//        this.lastName = lastName;
+//        this.age = age;
+//        this.email = email;
+//    }
+//
+//    public User(String username, String password, String name, String lastName, Byte age) {
+//        this.username = username;
+//        this.password = password;
+//        this.name = name;
+//        this.lastName = lastName;
+//        this.age = age;
+//        this.roles = new HashSet<>();
+//    }
 
     public User() {
         this.roles = new HashSet<>();
     }
 
-    public User(String name, String lastName, Byte age) {
-        this.name = name;
-        this.lastName = lastName;
-        this.age = age;
-        this.roles = new HashSet<>();
-    }
-
-    public User(Long id, String name, String lastName, Byte age) {
-        this.id = id;
-        this.name = name;
-        this.lastName = lastName;
-        this.age = age;
-        this.roles = new HashSet<>();
-    }
+//    public User(String name, String lastName, Byte age) {
+//        this.name = name;
+//        this.lastName = lastName;
+//        this.age = age;
+//        this.roles = new HashSet<>();
+//    }
+//
+//    public User(Long id, String name, String lastName, Byte age) {
+//        this.id = id;
+//        this.name = name;
+//        this.lastName = lastName;
+//        this.age = age;
+//        this.roles = new HashSet<>();
+//    }
 
     public User(long id) {
         this.roles = new HashSet<>();

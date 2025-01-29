@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,8 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
-import ru.kata.spring.boot_security.demo.dao.RoleDao;
+import org.springframework.context.annotation.Bean;
 import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final RoleService roleService;
 
     @Autowired
-    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleDao roleDao, RoleService roleService) {
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleService roleService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
         this.roleService = roleService;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void createUser(User user) {
-        if (user.getUsername().equals(userDao.findByUsername(user.getUsername()))) {
+        if (user.getUsername().equals(findByUsername(user.getUsername()).orElse(null))) {
             throw new EntityNotFoundException("Пользователь с username=" + user.getUsername() + " уже существует");
         }
         user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User existingUser = userDao.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + userId + " не найден"));
 
-        if (!StringUtils.isEmpty(updatedUser.getPassword())) {
+        if (!updatedUser.getPassword().isEmpty()) {
             existingUser.setPassword(bCryptPasswordEncoder.encode(updatedUser.getPassword()));
         } else {
             updatedUser.setPassword(existingUser.getPassword()); // Сохраняем существующий пароль, если новый не передан
@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userDao.findAll();
     }
 
-
     @Override
     public User getUserOrCreateIfNotExists(long id) {
         return userDao.findById(id)
@@ -99,8 +98,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        return userDao.findWithRoles(username); // Теперь используем метод с предзагрузкой ролей
+    }
+
+    @Override
+    public Optional<User> getUserById(long id) {
+        return userDao.findById(id);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = userDao.findByUsername(username);
+        Optional<User> optionalUser = findByUsername(username);
         if (!optionalUser.isPresent()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
@@ -123,15 +132,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.getPassword(),
                 authorities
         );
-    }
-
-    @Override
-    public Optional<User> findByUsername(String username) {
-        return userDao.findByUsername(username);
-    }
-
-    @Override
-    public Optional<User> getUserById(long id) {
-        return userDao.findById(id);
     }
 }
