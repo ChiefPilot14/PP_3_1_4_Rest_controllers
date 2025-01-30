@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.configs;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 
 @Configuration
@@ -57,5 +59,12 @@ public class WebSecurityConfig {
                 .clearAuthentication(true));
 
         return http.build();
+    }
+    @Bean
+    public FilterRegistrationBean openEntityManagerInViewFilter() {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        OpenEntityManagerInViewFilter filter = new OpenEntityManagerInViewFilter();
+        registrationBean.setFilter(filter);
+        return registrationBean;
     }
 }

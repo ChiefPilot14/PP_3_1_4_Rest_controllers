@@ -10,8 +10,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserDao extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
-    // Метод для поиска пользователя с предзагрузкой ролей
+
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username")
-    Optional<User> findWithRoles(@Param("username") String username);
+    Optional<User> findUserWithRoles(@Param("username") String username);
+
+    default Optional<User> findByUsername(String username) {
+        return findUserWithRoles(username);
+    }
 }

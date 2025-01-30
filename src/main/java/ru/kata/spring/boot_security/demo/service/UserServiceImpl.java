@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.context.annotation.Bean;
 import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
     private final UserDao userDao;
     private final RoleService roleService;
 
@@ -38,12 +35,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void createUser(User user) {
-        if (user.getUsername().equals(findByUsername(user.getUsername()).orElse(null))) {
+        if (findByUsername(user.getUsername()).isPresent()) {
             throw new EntityNotFoundException("Пользователь с username=" + user.getUsername() + " уже существует");
         }
-        user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userDao.save(user);
+
+        Set<Role> roles = user.getRoles();
+
+        if (roles != null && !roles.isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+            user.setRoles(roles, false);
+
+            userDao.save(user);
+        } else {
+            throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
+        }
     }
 
     @Override
@@ -55,7 +61,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (!updatedUser.getPassword().isEmpty()) {
             existingUser.setPassword(bCryptPasswordEncoder.encode(updatedUser.getPassword()));
         } else {
-            updatedUser.setPassword(existingUser.getPassword()); // Сохраняем существующий пароль, если новый не передан
+            updatedUser.setPassword(existingUser.getPassword());
         }
 
         existingUser.setName(updatedUser.getName());
@@ -75,7 +81,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 }
             }
         }
-        existingUser.setRoles(updatedRoles);
+        existingUser.setRoles(updatedRoles, true);
 
         userDao.save(existingUser);
     }
@@ -87,27 +93,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userDao.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserOrCreateIfNotExists(long id) {
         return userDao.findById(id)
                 .orElse(new User(id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
-        return userDao.findWithRoles(username); // Теперь используем метод с предзагрузкой ролей
+        return userDao.findByUsername(username);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> getUserById(long id) {
         return userDao.findById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = findByUsername(username);
         if (!optionalUser.isPresent()) {
@@ -132,5 +143,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.getPassword(),
                 authorities
         );
+    }
+    @Transactional(readOnly = true)
+    public Optional<User> findUserWithRoles(String username) {
+        return userDao.findUserWithRoles(username);
     }
 }

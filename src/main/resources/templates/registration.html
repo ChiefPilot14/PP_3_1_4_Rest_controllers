@@ -25,6 +25,17 @@
 
     <label for="password">Пароль:</label>
     <input type="text" id="password" th:field="*{password}" min="5" required /><br/>
+    <div>
+        <span>Роли:</span><br/>
+        <div th:each="role : ${allRoles}">
+            <input type="checkbox"
+                   th:name="'roles[]'"
+                   th:value="${role.id}"
+                   th:checked="${#lists.contains(user.roles, role)}" />
+            <label th:for="${role.id}" th:text="${role.name}"></label><br/>
+        </div>
+    </div>
+
 
     <button type="submit">Создать</button>
 </form>
