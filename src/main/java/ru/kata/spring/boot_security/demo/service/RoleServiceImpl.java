@@ -38,6 +38,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Set<Role> getRoles(User user) {
         return user.getRoles();
     }
