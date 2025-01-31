@@ -19,6 +19,7 @@
         <th>Фамилия</th>
         <th>Возраст</th>
         <th>Имя пользователя</th>
+        <th>Роли</th>
         <th> </th>
     </tr>
     <tr th:each="user : ${user}">
@@ -27,6 +28,7 @@
         <td th:text="${user.lastName}"></td>
         <td th:text="${user.age}"></td>
         <td th:text="${user.username}"></td>
+        <td th:each="role : ${allRoles}" th:text="${role.name}"></td>
     </tr>
 </table>
 <form th:action="@{/logout}" method="post">

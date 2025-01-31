@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.RoleDao;
 import ru.kata.spring.boot_security.demo.model.Role;
+import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -33,5 +35,10 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(readOnly = true)
     public List<Role> findAllByIdIn(List<Long> ids) {
         return roleDao.findAllById(ids);
+    }
+
+    @Override
+    public Set<Role> getRoles(User user) {
+        return user.getRoles();
     }
 }

@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void createUser(User user) {
-        if (findByUsername(user.getUsername()).isPresent()) {
+        if (getByUsername(user.getUsername()).isPresent()) {
             throw new EntityNotFoundException("Пользователь с username=" + user.getUsername() + " уже существует");
         }
 
@@ -107,21 +107,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> getByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<User> getUserById(long id) {
-        return userDao.findById(id);
-    }
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = findByUsername(username);
-        if (!optionalUser.isPresent()) {
+        Optional<User> optionalUser = getByUsername(username);
+        if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
         User userEntity = optionalUser.get();
@@ -144,8 +139,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 authorities
         );
     }
+
+    @Override
     @Transactional(readOnly = true)
-    public Optional<User> findUserWithRoles(String username) {
-        return userDao.findUserWithRoles(username);
+    public boolean findByUsername(String username) {
+        return getByUsername(username).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public void setRolesForUser(User user, List<Long> rolesIds) {
+        List<Role> roles = roleService.findAllByIdIn(rolesIds);
+        user.setRoles(new HashSet<>(roles), false);
     }
 }

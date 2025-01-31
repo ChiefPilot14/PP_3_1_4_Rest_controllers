@@ -12,9 +12,7 @@ import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class RegistrationController {
@@ -42,15 +40,14 @@ public class RegistrationController {
         if (bindingResult.hasErrors()) {
             return "registration";
         }
-        Optional<User> existingUser = userService.findByUsername(user.getUsername());
-        if (existingUser.isPresent()) {
+
+        if (userService.findByUsername(user.getUsername())) {
             model.addAttribute("errorMessage", "Пользователь с таким именем пользователя " +
                     "уже зарегистрирован.");
             return "registration";
         }
 
-        List<Role> roles = roleService.findAllByIdIn(Arrays.asList(rolesIds));
-        user.setRoles(new HashSet<>(roles), false);
+        userService.setRolesForUser(user, Arrays.asList(rolesIds));
 
         userService.createUser(user);
         return "redirect:/login";

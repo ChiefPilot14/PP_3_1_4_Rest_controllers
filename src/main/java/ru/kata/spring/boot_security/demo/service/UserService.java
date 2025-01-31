@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import jakarta.validation.Valid;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
@@ -18,9 +17,9 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    UserDetails loadUserByUsername(String username);
+    Optional<User> getByUsername(String username);
 
-    Optional<User> findByUsername(String username);
+    boolean findByUsername(String username);
 
-    Optional<User> getUserById(long id);
+    void setRolesForUser(@Valid User user, List<Long> list);
 }

@@ -60,10 +60,12 @@
     <div>
         <span>Роли:</span><br/>
         <div th:each="role : ${allRoles}">
-            <input type="checkbox"
-                   th:name="'roles[]'"
-                   th:value="${role.id}"
-                   th:checked="${#lists.contains(user.roles, role)}" />
+            <label>
+                <input type="checkbox"
+                       th:name="'roles[]'"
+                       th:value="${role.id}"
+                       th:checked="${#lists.contains(user.roles, role)}" />
+            </label>
             <label th:for="${role.id}" th:text="${role.name}"></label><br/>
         </div>
     </div>

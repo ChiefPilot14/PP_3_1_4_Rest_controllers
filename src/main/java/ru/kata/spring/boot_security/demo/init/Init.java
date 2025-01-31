@@ -2,90 +2,74 @@ package ru.kata.spring.boot_security.demo.init;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.RoleDao;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 
 @Component
 public class Init {
 
-//    private final UserService userService;
-//    private final RoleService roleService;
-//    private final RoleDao roleDao;
-//
-//    @Autowired
-//    public Init(UserService userService, RoleService roleService, RoleDao roleDao) {
-//        this.userService = userService;
-//        this.roleService = roleService;
-//        this.roleDao = roleDao;
-//    }
-private UserService userService;
-    private RoleService roleService;
-    private RoleDao roleDao;
+    private final UserDao userDao;
+    private final RoleDao roleDao;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
-    }
-
-    @Autowired
-    public void setRoleDao(RoleDao roleDao) {
+    public Init(UserDao userDao, RoleDao roleDao, BCryptPasswordEncoder passwordEncoder) {
+        this.userDao = userDao;
         this.roleDao = roleDao;
+        this.passwordEncoder = passwordEncoder;
     }
-
 
     @PostConstruct
-    public void initData() {
-        if (userService == null || roleService == null || roleDao == null) {
-            throw new IllegalStateException("Не удалось внедрить зависимости!");
+    @Transactional
+    public void init() {
+        try {
+            // Создание ролей
+            Role roleUser = roleDao.findByName("ROLE_USER").orElseGet(() -> {
+                Role newRole = new Role();
+                newRole.setName("ROLE_USER");
+                return roleDao.save(newRole);
+            });
+
+            Role roleAdmin = roleDao.findByName("ROLE_ADMIN").orElseGet(() -> {
+                Role newRole = new Role();
+                newRole.setName("ROLE_ADMIN");
+                return roleDao.save(newRole);
+            });
+
+            // Создание пользователей
+            if (userDao.findByUsername("user").isEmpty()) {
+                User user = new User();
+                user.setUsername("user");
+                user.setPassword(passwordEncoder.encode("password"));
+                user.setRoles(new HashSet<>(Collections.singletonList(roleUser)), false);
+                user.setName("Test User");
+                user.setLastName("Userovich");
+                user.setAge((byte) 25);
+                user.setEmail("user@example.com");
+                userDao.save(user);
+            }
+
+            if (userDao.findByUsername("admin").isEmpty()) {
+                User admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin"));
+                admin.setRoles(new HashSet<>(Collections.singletonList(roleAdmin)), false);
+                admin.setName("Test Admin");
+                admin.setLastName("Adminovich");
+                admin.setAge((byte) 30);
+                admin.setEmail("admin@example.com");
+                userDao.save(admin);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize test data", e);
         }
-
-        System.out.println("Инициализация тестовых пользователей...");
-
-        Role roleUser = roleService.findById(1L).get();
-
-        User user1 = new User();
-        user1.setUsername("testuser1");
-        user1.setPassword("password1");
-        user1.setName("Test");
-        user1.setLastName("User1");
-        user1.setEmail("testuser1@example.com");
-        user1.setAge((byte) 30);
-
-        user1.setRoles(Collections.singleton(roleUser), false);
-
-//        userService.createUser(user1);
-//
-//        Role roleUser1 = roleService.findById(1L).get();
-//        Role roleAdmin = roleService.findById(2L).get();
-//
-//        User user2 = new User();
-//        user2.setUsername("admin");
-//        user2.setPassword("password2");
-//        user2.setName("TestAdmin");
-//        user2.setLastName("AdminTest");
-//        user2.setEmail("testadmin@example.com");
-//        user2.setAge((byte) 42);
-//
-//        Set<Role> rolesForUser2 = new HashSet<>();
-//        rolesForUser2.add(roleUser1);
-//        rolesForUser2.add(roleAdmin);
-//        user2.setRoles(rolesForUser2, false);
-//
-//        userService.createUser(user2);
-
-        System.out.println("Тестовые пользователи успешно созданы.");
     }
 }
