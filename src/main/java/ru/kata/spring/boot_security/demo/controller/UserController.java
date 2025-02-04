@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
@@ -18,12 +17,10 @@ import java.util.Set;
 public class UserController {
 
     private final UserService userService;
-    private final RoleService roleService;
 
     @Autowired
-    public UserController(UserService userService, RoleService roleService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.roleService = roleService;
     }
 
     @GetMapping
@@ -32,7 +29,7 @@ public class UserController {
         Optional<User> user = userService.getByUsername(username);
         if (user.isPresent()) {
             model.addAttribute("user", user.get());
-            Set<Role> allRoles = roleService.getRoles(user.get());
+            Set<Role> allRoles = userService.getRoles(user.get());
             model.addAttribute("allRoles", allRoles);
         }
         return "user";

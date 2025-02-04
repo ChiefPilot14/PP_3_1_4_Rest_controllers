@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -24,8 +26,18 @@ public class AdminController {
     }
 
     @GetMapping
-    public String getUserList(Model model) {
+    public String getAdminPanel(Model model,
+                                @AuthenticationPrincipal org.springframework.security.core.userdetails.User
+                                        userDetails) {
         model.addAttribute("users", userService.getAllUsers());
+        Optional<User> currentUser = userService.getByUsername(userDetails.getUsername());
+        if (currentUser.isPresent()) {
+            User actualCurrentUser = currentUser.get();
+            model.addAttribute("currentUser", actualCurrentUser);
+        } else {
+            throw new RuntimeException("User не найден в базе данных.");
+            //model.addAttribute("currentUser", new User());
+        }
         return "admin";
     }
 

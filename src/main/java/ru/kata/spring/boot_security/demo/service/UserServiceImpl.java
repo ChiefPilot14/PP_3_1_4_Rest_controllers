@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,10 +21,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
-
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDao userDao;
     private final RoleService roleService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleService roleService) {
@@ -35,23 +37,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void createUser(User user) {
-        if (getByUsername(user.getUsername()).isPresent()) {
-            throw new EntityNotFoundException("Пользователь с username=" + user.getUsername() + " уже существует");
-        }
-
         Set<Role> roles = user.getRoles();
 
-        if (roles != null && !roles.isEmpty()) {
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-            user.setRoles(roles, false);
-
-            userDao.save(user);
-        } else {
+        if (roles == null || roles.isEmpty()) {
             throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
         }
-    }
 
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        Set<Role> managedRoles = new HashSet<>();
+
+        for (Role role : roles) {
+            Role managedRole = entityManager.merge(role);
+            managedRoles.add(managedRole);
+            System.out.println("Роль добавлена: " + managedRole.getName());
+        }
+
+        user.setRoles(managedRoles, false);
+
+        try {
+            userDao.save(user);
+            System.out.println("Пользователь успешно создан: " + user.getUsername());
+        } catch (Exception e) {
+            System.out.println("Ошибка при сохранении пользователя: " + e);
+            throw e;
+        }
+    }
     @Override
     @Transactional
     public void updateUser(Long userId, User updatedUser, Long[] rolesIds) {
@@ -121,16 +132,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         User userEntity = optionalUser.get();
 
-        if (userEntity.getPassword() == null || userEntity.getPassword().isBlank()) {
-            throw new InternalAuthenticationServiceException("Password is missing for user: " + username);
-        }
-
         List<GrantedAuthority> authorities = userEntity.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
         if (authorities.isEmpty()) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            System.out.println("User" + username + "has no roles assigned.");
         }
 
         return new org.springframework.security.core.userdetails.User(
@@ -151,5 +158,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void setRolesForUser(User user, List<Long> rolesIds) {
         List<Role> roles = roleService.findAllByIdIn(rolesIds);
         user.setRoles(new HashSet<>(roles), false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<Role> getRoles(User user) {
+        return user.getRoles();
     }
 }
