@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -69,25 +70,16 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-//    @PostMapping("/{id}/update")
-//    public String updateUser(
-//            @PathVariable("id") Long userId,
-//            @ModelAttribute("user") User user,
-//            @RequestParam(value = "roles[]", required = false) Long[] rolesIds
-//    ) {
-//        userService.updateUser(userId, user, rolesIds);
-//        return "redirect:/admin";
-//    }
-@PostMapping("/{id}/update")
-@ResponseBody
-public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User user,
-                                    @RequestBody Long[] roleIds) {
-    try {
-        userService.updateUser(userId, user, roleIds);
-        return ResponseEntity.ok().build();
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+    @PostMapping(value ="/{id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User user,
+                                        @RequestBody Long[] roleIds) {
+        try {
+            userService.updateUser(userId, user, roleIds);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
-}
 
 }

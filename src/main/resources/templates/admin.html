@@ -364,8 +364,10 @@
     // Функция для отправки формы редактирования пользователя
     function submitEditForm() {
         const formData = new FormData(document.getElementById('editUserForm'));
+        const userId = formData.get('id'); // Получаем userId из формы
 
-        fetch('/admin/${userId}/update', {
+
+        fetch(`/admin/${userId}/update`, {
             method: 'POST',
             body: formData,
         })

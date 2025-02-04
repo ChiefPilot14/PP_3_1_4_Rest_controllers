@@ -6,17 +6,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableTransactionManagement
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public BCryptPasswordEncoder createBCryptPasswordEncoder() {
@@ -31,12 +39,12 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain configureFilterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/", "/login", "/registration").permitAll()
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
-                                .anyRequest().authenticated()
-                )
+        http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/registration").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable) // отключение CSRF
                 .formLogin(form -> form.loginPage("/login"))
 
                 .formLogin(login -> login.successHandler((request,
@@ -62,11 +70,19 @@ public class WebSecurityConfig {
 
         return http.build();
     }
-
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager tm = new JpaTransactionManager();
         tm.setEntityManagerFactory(emf);
         return tm;
+    }
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
