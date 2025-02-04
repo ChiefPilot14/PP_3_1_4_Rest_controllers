@@ -36,7 +36,7 @@ public class RegistrationController {
     @PostMapping("/registration")
     public String registerUser(@Valid @ModelAttribute("user") User user,
                                BindingResult bindingResult,
-                               Model model, @RequestParam(value = "roles[]", required = false) Long[] rolesIds) {
+                               Model model, @RequestParam(value = "selectedRole", required = false) Long[] rolesIds) {
         if (bindingResult.hasErrors()) {
             return "registration";
         }

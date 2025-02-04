@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -35,7 +35,6 @@
 
         /* Стили для заголовка страницы */
         .table-header {
-            /*background-color: black;*/
             color: black;
             padding: 10px;
             font-size: 36px;
@@ -43,10 +42,10 @@
 
         /* Стили для заголовка таблицы */
         .table-header1 {
-            /*background-color: black;*/
             color: black;
             padding: 10px;
             font-size: 24px;
+            margin-left: 0;
         }
 
         /* Стили для кнопок Edit и Delete */
@@ -66,22 +65,35 @@
             border: none;
         }
 
+        /* Стили для формы добавления нового пользователя */
+        .form-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        /* Для выбора ролей */
+        .list-group-item.active {
+            background-color: lightblue;
+            color: navy;
+        }
     </style>
 </head>
 <body>
 <!-- Чёрная полоса вверху -->
 <nav class="navbar navbar-custom justify-content-start">
-    <strong><span th:if="${currentUser != null}" th:text="${currentUser.email}"></span></strong>
-     
-    <span th:if="${currentUser != null}"> with roles: </span>
-     
-    <span th:if="${currentUser != null}">
-        <span th:each="role, iterStat : ${currentUser.roles}">
-            <span th:text="${role.name}"></span>
-            <span th:unless="${iterStat.last}">, </span>
+    <div class="d-flex">
+        <strong><span th:if="${currentUser != null}" th:text="${currentUser.email}"></span></strong>
+         
+        <span th:if="${currentUser != null}"> with roles: </span>
+         
+        <span th:if="${currentUser != null}">
+            <span th:each="role, iterStat : ${currentUser.roles}">
+                <span th:text="${role.name}"></span>
+                <span th:unless="${iterStat.last}">, </span>
+            </span>
         </span>
-    </span>
-    <a class="mx-auto" th:href="@{/logout}" style="color: white;">Logout</a>
+    </div>
+    <a class="logout-link ms-auto" th:href="@{/logout}" style="color: white;">Logout</a>
 </nav>
 
 <div class="d-flex">
@@ -99,52 +111,161 @@
         <h1 class="table-header">Admin Panel</h1>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="#">Users Table</a>
+                <a class="nav-link active" href="#" id="users-tab">Users Table</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/registration}">New User</a>
+                <a class="nav-link" href="#" id="new-user-tab">New User</a>
             </li>
         </ul>
 
-        <!-- Заголовок таблицы -->
-        <div class="table-header1">All users</div>
+        <!-- Блок с таблицей пользователей -->
+        <div id="users-table">
+            <!-- Заголовок таблицы -->
+            <div class="table-header1">All users</div>
 
-        <!-- Таблица -->
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Age</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.id}"></td>
-                <td th:text="${user.name}"></td>
-                <td th:text="${user.lastName}"></td>
-                <td th:text="${user.age}"></td>
-                <td th:text="${user.email}"></td>
-                <td>
+            <!-- Таблица -->
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Age</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.lastName}"></td>
+                    <td th:text="${user.age}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td>
                         <span th:each="role, iterStat : ${user.roles}">
                             <span th:text="${role.name}"></span>
                             <span th:unless="${iterStat.last}">, </span>
                         </span>
-                </td>
-                <td>
-                    <a th:href="@{'/admin/' + ${user.id} + '/edit'}" class="btn-edit">Edit</a>
-                </td>
-                <td>
-                    <a th:href="@{'/admin/' + ${user.id} + '/delete'}" class="btn-delete">Delete</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                    </td>
+                    <td>
+                        <a href="#" th:class="btn-edit" th:attr="data-user-id=${user.id}">Edit</a>
+                    </td>
+                    <td>
+                        <a th:href="@{'/admin/' + ${user.id} + '/delete'}" class="btn-delete">Delete</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Блок с формой добавления нового пользователя -->
+        <div id="new-user-form" class="form-container">
+            <div class="container-fluid mt-4">
+                <div class="row">
+                    <h2 class="table-header1 ms-auto">Add new user</h2>
+                    <div class="col-md-4 offset-md-0 mx-auto">
+
+                        <form action="#" th:action="@{/registration}" method="post" th:object="${newUser}"
+                              class="mx-auto">
+                            <div class="mb-3 text-center">
+                                <label for="name" class="form-label"><span class="fw-bold">First name</span></label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label for="lastName" class="form-label"><span class="fw-bold">Last name</span></label>
+                                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label for="age" class="form-label"><span class="fw-bold">Age</span></label>
+                                <input type="number" class="form-control" id="age" th:field="*{age}" min="0" max="127"
+                                       required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label for="username" class="form-label"><span class="fw-bold">User name</span></label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}" required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label for="password" class="form-label"><span class="fw-bold">Password</span></label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}" min="5"
+                                       required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label for="email" class="form-label"><span class="fw-bold">Email</span></label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}" required/>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <span class="fw-bold">Role</span>
+                                <ul class="list-group list-group-flush" id="role-list">
+                                    <li class="list-group-item" th:each="role : ${allRoles}"
+                                        th:id="'role-' + ${role.id}" th:text="${role.name}" onclick="selectRole(this);"
+                                        th:attr="data-role-id=${role.id}"></li>
+                                </ul>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <button type="submit" class="btn btn-primary text-bg-success">Add new user</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для редактирования пользователя -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Редактирование пользователя</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm" method="post">
+                            <input type="hidden" id="editUserId" name="id"/>
+                            <div class="mb-3">
+                                <label for="editName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="editName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="editLastName" name="lastName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAge" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="editAge" name="age" min="0" max="127"
+                                       required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="editUsername" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="editPassword" name="password">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Roles</label>
+                                <div id="editRoles">
+                                    <!-- Роли будут добавлены динамически -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="submitEditForm()">Edit</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -152,6 +273,122 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous">
+</script>
+
+<script>
+    // JavaScript для переключения между таблицей и формой
+    document.getElementById('users-tab').addEventListener('click', function () {
+        document.getElementById('users-table').style.display = 'block';
+        document.getElementById('new-user-form').style.display = 'none';
+        document.getElementById('users-tab').classList.add('active');
+        document.getElementById('new-user-tab').classList.remove('active');
+    });
+
+    document.getElementById('new-user-tab').addEventListener('click', function () {
+        document.getElementById('users-table').style.display = 'none';
+        document.getElementById('new-user-form').style.display = 'block';
+        document.getElementById('new-user-tab').classList.add('active');
+        document.getElementById('users-tab').classList.remove('active');
+    });
+</script>
+<script>
+    // Функция для выбора роли
+    function selectRole(element) {
+        const selectedRole = element.dataset.roleId;
+        const roleInputs = document.querySelectorAll('#role-list input[type="hidden"]');
+
+        // Очистка предыдущих выборов
+        roleInputs.forEach(input => {
+            input.value = '';
+        });
+
+        // Установка значения выбранного элемента
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'selectedRole';
+        hiddenInput.value = selectedRole;
+        document.getElementById('role-list').appendChild(hiddenInput);
+
+        // Удаление активного состояния со всех элементов
+        const items = document.querySelectorAll('.list-group-item');
+        items.forEach(item => item.classList.remove('active'));
+
+        // Добавление активного состояния к выбранному элементу
+        element.classList.add('active');
+    }
+</script>
+<script>
+    // Функция для открытия модального окна и заполнения его данными пользователя
+    function openEditModal(user, roles) {
+// Заполняем форму данными пользователя
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editName').value = user.name;
+        document.getElementById('editLastName').value = user.lastName;
+        document.getElementById('editAge').value = user.age;
+        document.getElementById('editEmail').value = user.email;
+        document.getElementById('editUsername').value = user.username;
+
+// Очищаем предыдущие роли
+        const rolesContainer = document.getElementById('editRoles');
+        rolesContainer.innerHTML = '';
+
+// Добавляем роли
+        roles.forEach(role => {
+            const roleDiv = document.createElement('div');
+            roleDiv.className = 'form-check';
+            roleDiv.innerHTML = `
+<input class="form-check-input" type="checkbox" name="roles[]" value="${role.id}" id="role-${role.id}" ${user.roles.includes(role) ? 'checked' : ''}>
+<label class="form-check-label" for="role-${role.id}">${role.name}</label>
+`;
+            rolesContainer.appendChild(roleDiv);
+        });
+
+// Открываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        modal.show();
+    }
+
+    // Обработчик клика по кнопке Edit
+    document.querySelectorAll('.btn-edit').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const userId = button.getAttribute('data-user-id'); // Получаем ID из data-user-id
+            fetch(`/admin/${userId}/edit`) // Используем новый метод контроллера
+                .then(response => response.json()) // Преобразуем ответ в JSON
+                .then(data => openEditModal(data.user, data.roles)) // Передаем данные в openEditModal
+                .catch(error => console.error('Error fetching user data:', error));
+        });
+    });
+</script>
+<script>
+    // Функция для отправки формы редактирования пользователя
+    function submitEditForm() {
+        const formData = new FormData(document.getElementById('editUserForm'));
+
+        fetch('/admin/${userId}/update', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json(); // Преобразуем ответ в JSON
+            })
+            .then(data => {
+                // Обработка успешного ответа от сервера
+                alert('Пользователь успешно обновлен!');
+
+                // Закрытие модального окна
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                modal.hide();
+            })
+            .catch(error => {
+                // Обработка ошибок
+                console.error('Ошибка обновления пользователя:', error);
+                alert('Произошла ошибка при обновлении пользователя.');
+            });
+    }
 </script>
 </body>
 </html>
