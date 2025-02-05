@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.UserDao;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.model.entity.Role;
+import ru.kata.spring.boot_security.demo.model.entity.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw e;
         }
     }
+
     @Override
     @Transactional
     public void updateUser(Long userId, User updatedUser, Long[] rolesIds) {
@@ -82,7 +83,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         existingUser.setAge(updatedUser.getAge());
 
         Set<Role> updatedRoles = new HashSet<>();
-        if (rolesIds != null) {
+        if (rolesIds != null && rolesIds.length > 0) {
             for (Long roleId : rolesIds) {
                 Optional<Role> optionalRole = roleService.findById(roleId);
                 if (optionalRole.isPresent()) {
@@ -92,7 +93,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 }
             }
         }
-        existingUser.setRoles(updatedRoles, true);
+        if (!updatedRoles.isEmpty()) {
+            existingUser.setRoles(updatedRoles, true);
+        }
 
         userDao.save(existingUser);
     }

@@ -1,14 +1,14 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.model.dto.UpdateUserRequest;
+import ru.kata.spring.boot_security.demo.model.entity.Role;
+import ru.kata.spring.boot_security.demo.model.entity.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -70,16 +70,11 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @PostMapping(value ="/{id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/{id}/update")
     @ResponseBody
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId, @RequestBody User user,
-                                        @RequestBody Long[] roleIds) {
-        try {
-            userService.updateUser(userId, user, roleIds);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UpdateUserRequest request) {
 
+        userService.updateUser(id, request.getUser(), request.getRoleIds());
+        return ResponseEntity.ok().build();
+    }
 }

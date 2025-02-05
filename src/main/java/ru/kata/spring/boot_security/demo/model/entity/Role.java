@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.model;
+package ru.kata.spring.boot_security.demo.model.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;

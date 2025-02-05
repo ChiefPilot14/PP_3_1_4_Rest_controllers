@@ -1,8 +1,8 @@
 package ru.kata.spring.boot_security.demo.service;
 
 import jakarta.validation.Valid;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.model.entity.Role;
+import ru.kata.spring.boot_security.demo.model.entity.User;
 
 import java.util.List;
 import java.util.Optional;

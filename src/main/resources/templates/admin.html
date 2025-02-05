@@ -154,7 +154,7 @@
                         <a href="#" th:class="btn-edit" th:attr="data-user-id=${user.id}">Edit</a>
                     </td>
                     <td>
-                        <a th:href="@{'/admin/' + ${user.id} + '/delete'}" class="btn-delete">Delete</a>
+                        <a href="#" th:class="btn-delete" th:attr="data-user-id=${user.id}">Delete</a>
                     </td>
                 </tr>
                 </tbody>
@@ -219,39 +219,45 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editUserModalLabel">Редактирование пользователя</h5>
+                        <h5 class="modal-title" id="editUserModalLabel">Edit user</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form id="editUserForm" method="post">
-                            <input type="hidden" id="editUserId" name="id"/>
+                            <input type="text" hidden id="hiddenEditUserId" name="user.hidden">
+                            <div class="mb-3">
+                                <label for="editUserId" class="form-label">ID</label>
+                                <input type="text" class="form-control ui-state-disabled" id="editUserId" name="user.id"
+                                       disabled>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="editName" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="editName" name="name" required>
+                                <input type="text" class="form-control" id="editName" name="user.name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editLastName" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="editLastName" name="lastName" required>
+                                <input type="text" class="form-control" id="editLastName" name="user.lastName" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editAge" class="form-label">Age</label>
-                                <input type="number" class="form-control" id="editAge" name="age" min="0" max="127"
+                                <input type="number" class="form-control" id="editAge" name="user.age" min="0" max="127"
                                        required>
                             </div>
                             <div class="mb-3">
                                 <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" name="email" required>
+                                <input type="email" class="form-control" id="editEmail" name="user.email" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editUsername" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="editUsername" name="username" required>
+                                <input type="text" class="form-control" id="editUsername" name="user.username" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editPassword" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="editPassword" name="password">
+                                <input type="password" class="form-control" id="editPassword" name="user.password">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Roles</label>
+                                <label class="form-label">Role</label>
                                 <div id="editRoles">
                                     <!-- Роли будут добавлены динамически -->
                                 </div>
@@ -261,11 +267,65 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onclick="submitEditForm()">Edit</button>
-
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Модальное окно для удаления пользователя -->
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteUserModalLabel">Delete user</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteUserForm" method="post">
+                            <div class="mb-3">
+                                <label for="deleteUserId" class="form-label">ID</label>
+                                <input type="text" class="form-control" id="deleteUserId" name="id" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deleteName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="deleteName" name="user.name" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deleteLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="deleteLastName" name="user.lastName"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deleteAge" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="deleteAge" name="user.age" min="0"
+                                       max="127"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deleteEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="deleteEmail" name="user.email" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="deleteUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="deleteUsername" name="user.username"
+                                       disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <div id="deleteRoles">
+                                    <!-- Роли будут добавлены динамически -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="submitDeleteForm()">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -292,6 +352,7 @@
     });
 </script>
 <script>
+    // Регистрация нового юзера
     // Функция для выбора роли
     function selectRole(element) {
         const selectedRole = element.dataset.roleId;
@@ -318,9 +379,10 @@
     }
 </script>
 <script>
-    // Функция для открытия модального окна и заполнения его данными пользователя
+    // Функция для открытия модального окна редактирования и заполнения его данными пользователя
     function openEditModal(user, roles) {
 // Заполняем форму данными пользователя
+        document.getElementById('hiddenEditUserId').value = user.id;
         document.getElementById('editUserId').value = user.id;
         document.getElementById('editName').value = user.name;
         document.getElementById('editLastName').value = user.lastName;
@@ -328,19 +390,27 @@
         document.getElementById('editEmail').value = user.email;
         document.getElementById('editUsername').value = user.username;
 
-// Очищаем предыдущие роли
+        // Очищаем предыдущие роли
         const rolesContainer = document.getElementById('editRoles');
         rolesContainer.innerHTML = '';
 
-// Добавляем роли
+        // Добавляем роли
         roles.forEach(role => {
-            const roleDiv = document.createElement('div');
-            roleDiv.className = 'form-check';
-            roleDiv.innerHTML = `
-<input class="form-check-input" type="checkbox" name="roles[]" value="${role.id}" id="role-${role.id}" ${user.roles.includes(role) ? 'checked' : ''}>
-<label class="form-check-label" for="role-${role.id}">${role.name}</label>
-`;
-            rolesContainer.appendChild(roleDiv);
+            const roleItem = document.createElement('a');
+            roleItem.href = '#'; // Это для того, чтобы элемент выглядел как ссылка, но при этом ничего не делал
+            roleItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+            if (user.roles.includes(role)) {
+                roleItem.classList.add('active'); // Выделяем активную роль
+            }
+
+            roleItem.textContent = role.name;
+            roleItem.dataset.roleId = role.id;
+            // Добавляем обработчик события onclick
+            roleItem.onclick = function() {
+                selectRole(this);
+            };
+            rolesContainer.appendChild(roleItem);
         });
 
 // Открываем модальное окно
@@ -349,46 +419,140 @@
     }
 
     // Обработчик клика по кнопке Edit
-    document.querySelectorAll('.btn-edit').forEach(function(button) {
-        button.addEventListener('click', function(event) {
+    document.querySelectorAll('.btn-edit').forEach(function (button) {
+        button.addEventListener('click', function (event) {
             event.preventDefault();
             const userId = button.getAttribute('data-user-id'); // Получаем ID из data-user-id
             fetch(`/admin/${userId}/edit`) // Используем новый метод контроллера
                 .then(response => response.json()) // Преобразуем ответ в JSON
                 .then(data => openEditModal(data.user, data.roles)) // Передаем данные в openEditModal
-                .catch(error => console.error('Error fetching user data:', error));
+                    .catch(error => console.error('Error fetching user data:', error));
         });
     });
 </script>
 <script>
+    // Функция для открытия модального окна удаления и заполнения его данными пользователя
+    function openDeleteModal(user, roles) {
+// Заполняем форму данными пользователя
+        document.getElementById('deleteUserId').value = user.id;
+        document.getElementById('deleteName').value = user.name;
+        document.getElementById('deleteLastName').value = user.lastName;
+        document.getElementById('deleteAge').value = user.age;
+        document.getElementById('deleteEmail').value = user.email;
+        document.getElementById('deleteUsername').value = user.username;
+
+// Очищаем предыдущие роли
+        const rolesContainer = document.getElementById('deleteRoles');
+        rolesContainer.innerHTML = '';
+
+// Добавляем роли
+        roles.forEach(role => {
+            const roleDiv = document.createElement('div');
+            roleDiv.className = 'form-check';
+            roleDiv.innerHTML = `
+<input class="form-check-input" type="checkbox" name="roles[]" value="${role.id}" id="role-${role.id}" ${user.roles.includes(role) ? 'checked' : ''} disabled>
+<label class="form-check-label" for="role-${role.id}">${role.name}</label>
+`;
+            rolesContainer.appendChild(roleDiv);
+        });
+
+// Открываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+        modal.show();
+    }
+
+    // Обработчик клика по кнопке Delete
+    document.querySelectorAll('.btn-delete').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const userId = button.getAttribute('data-user-id'); // Получаем ID из data-user-id
+            fetch(`/admin/${userId}/edit`) // Используем новый метод контроллера
+                .then(response => response.json()) // Преобразуем ответ в JSON
+                .then(data => openDeleteModal(data.user, data.roles)) // Передаем данные в openEditModal
+                .catch(error => console.error('Error fetching user data:', error));
+        });
+    });
+</script>
+
+<script>
     // Функция для отправки формы редактирования пользователя
     function submitEditForm() {
         const formData = new FormData(document.getElementById('editUserForm'));
-        const userId = formData.get('id'); // Получаем userId из формы
+        const userId = formData.get('user.hidden');
 
+        const user = {
+            name: formData.get('user.name'),
+            lastName: formData.get('user.lastName'),
+            age: formData.get('user.age'),
+            email: formData.get('user.email'),
+            username: formData.get('user.username'),
+            password: formData.get('user.password')
+        };
+
+        const roleItems = document.querySelectorAll('#editRoles .list-group-item.active');
+        const roleIds = [];
+
+        roleItems.forEach(item => {
+            roleIds.push(parseInt(item.dataset.roleId));
+        });
+
+        const updateUserRequest = {
+            user: user,
+            roleIds: roleIds
+        };
 
         fetch(`/admin/${userId}/update`, {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateUserRequest)
         })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Network response was not ok: ${response.status}`);
                 }
-                return response.json(); // Преобразуем ответ в JSON
+                return response.text();
             })
             .then(data => {
-                // Обработка успешного ответа от сервера
-                alert('Пользователь успешно обновлен!');
 
-                // Закрытие модального окна
+                // alert('Пользователь успешно обновлен!');
+
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
                 modal.hide();
+                location.reload();
             })
             .catch(error => {
-                // Обработка ошибок
                 console.error('Ошибка обновления пользователя:', error);
                 alert('Произошла ошибка при обновлении пользователя.');
+            });
+    }
+</script>
+<script>
+    // Функция для отправки формы удаления пользователя
+    function submitDeleteForm() {
+        const formData = new FormData(document.getElementById('deleteUserForm'));
+        const userId = formData.get('id');
+
+        fetch(`/admin/${userId}/delete`, {
+            method: 'GET'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                // alert('Пользователь успешно удален!');
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
+                modal.hide();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Ошибка удаления пользователя:', error);
+                alert('Произошла ошибка при удалении пользователя.');
             });
     }
 </script>
