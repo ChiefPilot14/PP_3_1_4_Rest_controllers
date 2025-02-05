@@ -1,10 +1,12 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.dto.UpdateUserRequest;
 import ru.kata.spring.boot_security.demo.model.entity.Role;
@@ -12,10 +14,7 @@ import ru.kata.spring.boot_security.demo.model.entity.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -65,9 +64,10 @@ public class AdminController {
     }
 
     @GetMapping("/{id}/delete")
-    public String deleteUser(@PathVariable("id") long id) {
+    @ResponseBody
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);
-        return "redirect:/admin";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/update")
@@ -77,4 +77,22 @@ public class AdminController {
         userService.updateUser(id, request.getUser(), request.getRoleIds());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/registration")
+    public String registerUser(@Valid @ModelAttribute("user") User user,
+                               BindingResult bindingResult,
+                               Model model, @RequestParam(value = "selectedRole", required = false) Long[] rolesIds) {
+
+        if (userService.findByUsername(user.getUsername())) {
+            model.addAttribute("errorMessage", "Пользователь с таким именем пользователя " +
+                    "уже зарегистрирован.");
+            return "redirect:/admin";
+        }
+
+        userService.setRolesForUser(user, Arrays.asList(rolesIds));
+
+        userService.createUser(user);
+        return "redirect:/admin";
+    }
+
 }

@@ -111,89 +111,90 @@
         <h1 class="table-header">Admin Panel</h1>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="#" id="users-tab">Users Table</a>
+                <a class="nav-link active border" href="#" id="users-tab">Users Table</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" id="new-user-tab">New User</a>
+                <a class="nav-link active" href="#" id="new-user-tab">New User</a>
             </li>
         </ul>
 
         <!-- Блок с таблицей пользователей -->
-        <div id="users-table">
+        <div id="users-table" class="border">
             <!-- Заголовок таблицы -->
-            <div class="table-header1">All users</div>
-
+            <div class="table-header1 border-bottom bg-light">All users</div>
             <!-- Таблица -->
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Age</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${users}">
-                    <td th:text="${user.id}"></td>
-                    <td th:text="${user.name}"></td>
-                    <td th:text="${user.lastName}"></td>
-                    <td th:text="${user.age}"></td>
-                    <td th:text="${user.email}"></td>
-                    <td>
+            <div class="p-4">
+                <table class="table table-striped border-top">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.lastName}"></td>
+                        <td th:text="${user.age}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
                         <span th:each="role, iterStat : ${user.roles}">
                             <span th:text="${role.name}"></span>
                             <span th:unless="${iterStat.last}">, </span>
                         </span>
-                    </td>
-                    <td>
-                        <a href="#" th:class="btn-edit" th:attr="data-user-id=${user.id}">Edit</a>
-                    </td>
-                    <td>
-                        <a href="#" th:class="btn-delete" th:attr="data-user-id=${user.id}">Delete</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        </td>
+                        <td>
+                            <a href="#" th:class="btn-edit" th:attr="data-user-id=${user.id}">Edit</a>
+                        </td>
+                        <td>
+                            <a href="#" th:class="btn-delete" th:attr="data-user-id=${user.id}">Delete</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Блок с формой добавления нового пользователя -->
-        <div id="new-user-form" class="form-container">
+        <div id="new-user-form" class="form-container border m-0">
             <div class="container-fluid mt-4">
                 <div class="row">
                     <h2 class="table-header1 ms-auto">Add new user</h2>
                     <div class="col-md-4 offset-md-0 mx-auto">
 
-                        <form action="#" th:action="@{/registration}" method="post" th:object="${newUser}"
+                        <form action="#" th:action="@{/admin/registration}" method="post" th:object="${newUser}"
                               class="mx-auto">
                             <div class="mb-3 text-center">
-                                <label for="name" class="form-label"><span class="fw-bold">First name</span></label>
+                                <label for="name" class="form-label fw-bold">First name</label>
                                 <input type="text" class="form-control" id="name" th:field="*{name}" required/>
                             </div>
                             <div class="mb-3 text-center">
-                                <label for="lastName" class="form-label"><span class="fw-bold">Last name</span></label>
+                                <label for="lastName" class="form-label fw-bold">Last name</label>
                                 <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required/>
                             </div>
                             <div class="mb-3 text-center">
-                                <label for="age" class="form-label"><span class="fw-bold">Age</span></label>
+                                <label for="age" class="form-label fw-bold">Age</label>
                                 <input type="number" class="form-control" id="age" th:field="*{age}" min="0" max="127"
                                        required/>
                             </div>
                             <div class="mb-3 text-center">
-                                <label for="username" class="form-label"><span class="fw-bold">User name</span></label>
+                                <label for="username" class="form-label fw-bold">User name</label>
                                 <input type="text" class="form-control" id="username" th:field="*{username}" required/>
                             </div>
                             <div class="mb-3 text-center">
-                                <label for="password" class="form-label"><span class="fw-bold">Password</span></label>
+                                <label for="password" class="form-label fw-bold">Password</label>
                                 <input type="password" class="form-control" id="password" th:field="*{password}" min="5"
                                        required/>
                             </div>
                             <div class="mb-3 text-center">
-                                <label for="email" class="form-label"><span class="fw-bold">Email</span></label>
+                                <label for="email" class="form-label fw-bold">Email</label>
                                 <input type="email" class="form-control" id="email" th:field="*{email}" required/>
                             </div>
                             <div class="mb-3 text-center">
@@ -225,39 +226,39 @@
                     <div class="modal-body">
                         <form id="editUserForm" method="post">
                             <input type="text" hidden id="hiddenEditUserId" name="user.hidden">
-                            <div class="mb-3">
-                                <label for="editUserId" class="form-label">ID</label>
+                            <div class="mb-3 text-center">
+                                <label for="editUserId" class="form-label fw-bold">ID</label>
                                 <input type="text" class="form-control ui-state-disabled" id="editUserId" name="user.id"
                                        disabled>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="editName" class="form-label">First Name</label>
+                            <div class="mb-3 text-center">
+                                <label for="editName" class="form-label fw-bold">First Name</label>
                                 <input type="text" class="form-control" id="editName" name="user.name" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="editLastName" class="form-label">Last Name</label>
+                            <div class="mb-3 text-center">
+                                <label for="editLastName" class="form-label fw-bold">Last Name</label>
                                 <input type="text" class="form-control" id="editLastName" name="user.lastName" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="editAge" class="form-label">Age</label>
+                            <div class="mb-3 text-center">
+                                <label for="editAge" class="form-label fw-bold">Age</label>
                                 <input type="number" class="form-control" id="editAge" name="user.age" min="0" max="127"
                                        required>
                             </div>
-                            <div class="mb-3">
-                                <label for="editEmail" class="form-label">Email</label>
+                            <div class="mb-3 text-center">
+                                <label for="editEmail" class="form-label fw-bold">Email</label>
                                 <input type="email" class="form-control" id="editEmail" name="user.email" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="editUsername" class="form-label">Username</label>
+                            <div class="mb-3 text-center">
+                                <label for="editUsername" class="form-label fw-bold">Username</label>
                                 <input type="text" class="form-control" id="editUsername" name="user.username" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="editPassword" class="form-label">Password</label>
+                            <div class="mb-3 text-center">
+                                <label for="editPassword" class="form-label fw-bold">Password</label>
                                 <input type="password" class="form-control" id="editPassword" name="user.password">
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Role</label>
+                            <div class="mb-3 text-center">
+                                <label class="form-label fw-bold">Role</label>
                                 <div id="editRoles">
                                     <!-- Роли будут добавлены динамически -->
                                 </div>
@@ -282,36 +283,37 @@
                     </div>
                     <div class="modal-body">
                         <form id="deleteUserForm" method="post">
-                            <div class="mb-3">
-                                <label for="deleteUserId" class="form-label">ID</label>
+                            <input type="text" hidden id="hiddenDeleteUserId" name="user.hidden">
+                            <div class="mb-3 text-center">
+                                <label for="deleteUserId" class="form-label fw-bold">ID</label>
                                 <input type="text" class="form-control" id="deleteUserId" name="id" disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="deleteName" class="form-label">First Name</label>
+                            <div class="mb-3 text-center">
+                                <label for="deleteName" class="form-label fw-bold">First Name</label>
                                 <input type="text" class="form-control" id="deleteName" name="user.name" disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="deleteLastName" class="form-label">Last Name</label>
+                            <div class="mb-3 text-center">
+                                <label for="deleteLastName" class="form-label fw-bold">Last Name</label>
                                 <input type="text" class="form-control" id="deleteLastName" name="user.lastName"
                                        disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="deleteAge" class="form-label">Age</label>
+                            <div class="mb-3 text-center">
+                                <label for="deleteAge" class="form-label fw-bold">Age</label>
                                 <input type="number" class="form-control" id="deleteAge" name="user.age" min="0"
                                        max="127"
                                        disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="deleteEmail" class="form-label">Email</label>
+                            <div class="mb-3 text-center">
+                                <label for="deleteEmail" class="form-label fw-bold">Email</label>
                                 <input type="email" class="form-control" id="deleteEmail" name="user.email" disabled>
                             </div>
-                            <div class="mb-3">
-                                <label for="deleteUsername" class="form-label">Username</label>
+                            <div class="mb-3 text-center">
+                                <label for="deleteUsername" class="form-label fw-bold">Username</label>
                                 <input type="text" class="form-control" id="deleteUsername" name="user.username"
                                        disabled>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Role</label>
+                            <div class="mb-3 text-center">
+                                <label class="form-label fw-bold">Role</label>
                                 <div id="deleteRoles">
                                     <!-- Роли будут добавлены динамически -->
                                 </div>
@@ -337,18 +339,30 @@
 
 <script>
     // JavaScript для переключения между таблицей и формой
-    document.getElementById('users-tab').addEventListener('click', function () {
+    document.getElementById('users-tab').addEventListener('click', function() {
         document.getElementById('users-table').style.display = 'block';
         document.getElementById('new-user-form').style.display = 'none';
-        document.getElementById('users-tab').classList.add('active');
-        document.getElementById('new-user-tab').classList.remove('active');
+
+        // Управление классами вкладок
+        this.classList.add('active');       // Активируем текущую вкладку
+        this.classList.add('border');       // Добавляем бордюр к текущей вкладке
+
+        const otherTab = document.getElementById('new-user-tab');
+        otherTab.classList.remove('active');   // Деактивируем другую вкладку
+        otherTab.classList.remove('border');   // Убираем бордюр у другой вкладки
     });
 
-    document.getElementById('new-user-tab').addEventListener('click', function () {
+    document.getElementById('new-user-tab').addEventListener('click', function() {
         document.getElementById('users-table').style.display = 'none';
         document.getElementById('new-user-form').style.display = 'block';
-        document.getElementById('new-user-tab').classList.add('active');
-        document.getElementById('users-tab').classList.remove('active');
+
+        // Управление классами вкладок
+        this.classList.add('active');           // Активируем текущую вкладку
+        this.classList.add('border');           // Добавляем бордюр к текущей вкладке
+
+        const otherTab = document.getElementById('users-tab');
+        otherTab.classList.remove('active');     // Деактивируем другую вкладку
+        otherTab.classList.remove('border');     // Убираем бордюр у другой вкладки
     });
 </script>
 <script>
@@ -407,7 +421,7 @@
             roleItem.textContent = role.name;
             roleItem.dataset.roleId = role.id;
             // Добавляем обработчик события onclick
-            roleItem.onclick = function() {
+            roleItem.onclick = function () {
                 selectRole(this);
             };
             rolesContainer.appendChild(roleItem);
@@ -426,14 +440,15 @@
             fetch(`/admin/${userId}/edit`) // Используем новый метод контроллера
                 .then(response => response.json()) // Преобразуем ответ в JSON
                 .then(data => openEditModal(data.user, data.roles)) // Передаем данные в openEditModal
-                    .catch(error => console.error('Error fetching user data:', error));
+                .catch(error => console.error('Error fetching user data:', error));
         });
     });
 </script>
 <script>
     // Функция для открытия модального окна удаления и заполнения его данными пользователя
     function openDeleteModal(user, roles) {
-// Заполняем форму данными пользователя
+
+        document.getElementById('hiddenDeleteUserId').value = user.id;
         document.getElementById('deleteUserId').value = user.id;
         document.getElementById('deleteName').value = user.name;
         document.getElementById('deleteLastName').value = user.lastName;
@@ -441,34 +456,32 @@
         document.getElementById('deleteEmail').value = user.email;
         document.getElementById('deleteUsername').value = user.username;
 
-// Очищаем предыдущие роли
         const rolesContainer = document.getElementById('deleteRoles');
         rolesContainer.innerHTML = '';
 
-// Добавляем роли
         roles.forEach(role => {
-            const roleDiv = document.createElement('div');
-            roleDiv.className = 'form-check';
-            roleDiv.innerHTML = `
-<input class="form-check-input" type="checkbox" name="roles[]" value="${role.id}" id="role-${role.id}" ${user.roles.includes(role) ? 'checked' : ''} disabled>
-<label class="form-check-label" for="role-${role.id}">${role.name}</label>
-`;
-            rolesContainer.appendChild(roleDiv);
+            const roleItem = document.createElement('div');
+
+            roleItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center',
+                'list-group-item-secondary');
+
+            roleItem.textContent = role.name;
+            roleItem.dataset.roleId = role.id;
+            rolesContainer.appendChild(roleItem);
+
         });
 
-// Открываем модальное окно
         const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
         modal.show();
     }
 
-    // Обработчик клика по кнопке Delete
     document.querySelectorAll('.btn-delete').forEach(function (button) {
         button.addEventListener('click', function (event) {
             event.preventDefault();
-            const userId = button.getAttribute('data-user-id'); // Получаем ID из data-user-id
-            fetch(`/admin/${userId}/edit`) // Используем новый метод контроллера
-                .then(response => response.json()) // Преобразуем ответ в JSON
-                .then(data => openDeleteModal(data.user, data.roles)) // Передаем данные в openEditModal
+            const userId = button.getAttribute('data-user-id');
+            fetch(`/admin/${userId}/edit`)
+                .then(response => response.json())
+                .then(data => openDeleteModal(data.user, data.roles))
                 .catch(error => console.error('Error fetching user data:', error));
         });
     });
@@ -532,7 +545,7 @@
     // Функция для отправки формы удаления пользователя
     function submitDeleteForm() {
         const formData = new FormData(document.getElementById('deleteUserForm'));
-        const userId = formData.get('id');
+        const userId = formData.get('user.hidden');
 
         fetch(`/admin/${userId}/delete`, {
             method: 'GET'
