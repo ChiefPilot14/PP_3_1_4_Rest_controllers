@@ -86,6 +86,7 @@ public class AdminController {
         if (userService.findByUsername(user.getUsername())) {
             model.addAttribute("errorMessage", "Пользователь с таким именем пользователя " +
                     "уже зарегистрирован.");
+
             return "redirect:/admin";
         }
 
