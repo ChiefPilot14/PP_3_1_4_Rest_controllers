@@ -1,7 +1,5 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,8 +22,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDao userDao;
     private final RoleService roleService;
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Autowired
     public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao, RoleService roleService) {
@@ -34,35 +30,52 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         this.roleService = roleService;
     }
 
-    @Override
-    @Transactional
-    public void createUser(User user) {
-        Set<Role> roles = user.getRoles();
-
-        if (roles == null || roles.isEmpty()) {
-            throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
-        }
-
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        Set<Role> managedRoles = new HashSet<>();
-
-        for (Role role : roles) {
-            Role managedRole = entityManager.merge(role);
-            managedRoles.add(managedRole);
-            System.out.println("Роль добавлена: " + managedRole.getName());
-        }
-
-        user.setRoles(managedRoles, false);
-
-        try {
-            userDao.save(user);
-            System.out.println("Пользователь успешно создан: " + user.getUsername());
-        } catch (Exception e) {
-            System.out.println("Ошибка при сохранении пользователя: " + e);
-            throw e;
-        }
+//    @Override
+//    @Transactional
+//    public void createUser(User user) {
+//        Set<Role> roles = user.getRoles();
+//
+//        if (roles == null || roles.isEmpty()) {
+//            throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
+//        }
+//
+//        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+//
+//        Set<Role> managedRoles = new HashSet<>();
+//
+//        for (Role role : roles) {
+//            Role managedRole = entityManager.merge(role);
+//            managedRoles.add(managedRole);
+//            System.out.println("Роль добавлена: " + managedRole.getName());
+//        }
+//
+//        user.setRoles(managedRoles, false);
+//
+//        try {
+//            userDao.save(user);
+//            System.out.println("Пользователь успешно создан: " + user.getUsername());
+//        } catch (Exception e) {
+//            System.out.println("Ошибка при сохранении пользователя: " + e);
+//            throw e;
+//        }
+//    }
+@Override
+@Transactional
+public void createUser(User user) {
+    if (user.getRoles() == null || user.getRoles().isEmpty()) {
+        throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
     }
+
+    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+    try {
+        userDao.save(user);
+        System.out.println("Пользователь успешно создан: " + user.getUsername());
+    } catch (Exception e) {
+        System.out.println("Ошибка при сохранении пользователя: " + e);
+        throw e;
+    }
+}
 
     @Override
     @Transactional
@@ -121,7 +134,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> getByUsername(String username) {
+    public User getByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
@@ -129,19 +142,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = getByUsername(username);
-        if (optionalUser.isEmpty()) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
-        User userEntity = optionalUser.get();
+        User userEntity = getByUsername(username);
 
         List<GrantedAuthority> authorities = userEntity.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
-
-        if (authorities.isEmpty()) {
-            System.out.println("User" + username + "has no roles assigned.");
-        }
 
         return new org.springframework.security.core.userdetails.User(
                 userEntity.getUsername(),
@@ -153,19 +158,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public boolean findByUsername(String username) {
-        return getByUsername(username).isPresent();
+        return getByUsername(username) != null;
     }
 
-    @Override
-    @Transactional
-    public void setRolesForUser(User user, List<Long> rolesIds) {
-        List<Role> roles = roleService.findAllByIdIn(rolesIds);
-        user.setRoles(new HashSet<>(roles), false);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Set<Role> getRoles(User user) {
-        return user.getRoles();
-    }
 }

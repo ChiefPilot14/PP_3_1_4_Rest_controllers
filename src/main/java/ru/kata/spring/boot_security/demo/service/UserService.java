@@ -1,12 +1,8 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import jakarta.validation.Valid;
-import ru.kata.spring.boot_security.demo.model.entity.Role;
 import ru.kata.spring.boot_security.demo.model.entity.User;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public interface UserService {
     void createUser(User user);
@@ -19,12 +15,8 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    Optional<User> getByUsername(String username);
+    User getByUsername(String username);
 
     boolean findByUsername(String username);
-
-    void setRolesForUser(@Valid User user, List<Long> list);
-
-    Set<Role> getRoles(User user);
 
 }

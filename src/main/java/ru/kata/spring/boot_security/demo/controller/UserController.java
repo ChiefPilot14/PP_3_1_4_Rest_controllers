@@ -11,7 +11,6 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -26,31 +25,13 @@ public class UserController {
         this.roleService = roleService;
     }
 
-//    @GetMapping
-//    public String showUserForm(Model model, Principal principal) {
-//        String username = principal.getName();
-//        Optional<User> user = userService.getByUsername(username);
-//        if (user.isPresent()) {
-//            model.addAttribute("user", user.get());
-//            Set<Role> allRoles = userService.getRoles(user.get());
-//            model.addAttribute("allRoles", allRoles);
-//        }
-//        return "user";
-//    }
-
     @GetMapping
     public String getUserForm(Model model,
-                                @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
         model.addAttribute("users", userService.getAllUsers());
 
-        Optional<User> currentUser = userService.getByUsername(userDetails.getUsername());
-        if (currentUser.isPresent()) {
-            User actualCurrentUser = currentUser.get();
-            model.addAttribute("currentUser", actualCurrentUser);
-        } else {
-            throw new RuntimeException("User не найден в базе данных.");
-
-        }
+        User currentUser = userService.getByUsername(userDetails.getUsername());
+        model.addAttribute("currentUser", currentUser);
 
         model.addAttribute("newUser", new User());
 
