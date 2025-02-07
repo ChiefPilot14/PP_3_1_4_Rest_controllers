@@ -30,35 +30,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         this.roleService = roleService;
     }
 
-//    @Override
-//    @Transactional
-//    public void createUser(User user) {
-//        Set<Role> roles = user.getRoles();
-//
-//        if (roles == null || roles.isEmpty()) {
-//            throw new IllegalArgumentException("Пользователь должен иметь хотя бы одну роль");
-//        }
-//
-//        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-//
-//        Set<Role> managedRoles = new HashSet<>();
-//
-//        for (Role role : roles) {
-//            Role managedRole = entityManager.merge(role);
-//            managedRoles.add(managedRole);
-//            System.out.println("Роль добавлена: " + managedRole.getName());
-//        }
-//
-//        user.setRoles(managedRoles, false);
-//
-//        try {
-//            userDao.save(user);
-//            System.out.println("Пользователь успешно создан: " + user.getUsername());
-//        } catch (Exception e) {
-//            System.out.println("Ошибка при сохранении пользователя: " + e);
-//            throw e;
-//        }
-//    }
+
 @Override
 @Transactional
 public void createUser(User user) {
