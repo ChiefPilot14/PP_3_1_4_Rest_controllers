@@ -9,6 +9,10 @@ public class UpdateUserRequest {
     private User user;
     private Long[] roleIds;
 
+    public Long getId() {
+        return user.getId();
+    }
+
     public User getUser() {
         return user;
     }
@@ -43,4 +47,5 @@ public class UpdateUserRequest {
                 ", roleIds=" + Arrays.toString(roleIds) +
                 '}';
     }
+
 }

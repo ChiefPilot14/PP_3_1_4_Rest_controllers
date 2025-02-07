@@ -39,6 +39,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/error").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/**").hasRole("ADMIN")
                         .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
