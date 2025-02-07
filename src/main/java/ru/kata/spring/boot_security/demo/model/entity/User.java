@@ -53,7 +53,7 @@ public class User implements UserDetails {
     public User(String username, String password, Set<Role> roles, String name, String lastName, Byte age, String email) {
         this.username = username;
         this.password = password;
-        this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>(); // Создаем копию коллекции
+        this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
         this.name = name;
         this.lastName = lastName;
         this.age = age;

@@ -75,21 +75,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/registration")
-//    public String registerUser(@Valid @ModelAttribute("user") User user,
-//                               BindingResult bindingResult,
-//                               Model model, @RequestParam(value = "selectedRole", required = false) Long[] rolesIds) {
-//
-//        if (userService.findByUsername(user.getUsername())) {
-//            model.addAttribute("errorMessage", "Пользователь с таким именем пользователя " +
-//                    "уже зарегистрирован.");
-//
-//            return "redirect:/admin";
-//        }
-//
-//        userService.createUser(user, rolesIds);
-//        return "redirect:/admin";
-//    }
 @PostMapping("/registration")
 public String registerUser(@Valid @ModelAttribute("user") User user,
                            BindingResult bindingResult,
