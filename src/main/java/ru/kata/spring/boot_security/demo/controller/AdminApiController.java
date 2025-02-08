@@ -40,9 +40,9 @@ public class AdminApiController {
     //Добавление пользователя
     @PostMapping("/users")
     @ResponseBody
-    public ResponseEntity<?> registerUser(@Valid @ModelAttribute("user") User user,
-                                          @RequestParam(value = "selectedRole", required = false) Long[] rolesIds) {
-
+    public ResponseEntity<?> registerUser(@RequestBody UpdateUserRequest request) {
+        User user = request.getUser();
+        Long[] rolesIds = request.getRoleIds();
         Set<Role> roles = new HashSet<>();
         for (Long roleId : rolesIds) {
             Role role = roleService.findById(roleId).orElseThrow(() ->
