@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -100,6 +101,7 @@
     <!-- Боковое меню -->
     <div class="sidebar p-0">
         <!-- Кнопка Admin  -->
+        <a sec:authorize="hasAuthority('ROLE_ADMIN')" href="/admin" class="d-block p-2 text-bg-light flex-fill">Admin</a>
         <span class="d-block p-2 text-bg-primary flex-fill">User</span>
     </div>
 

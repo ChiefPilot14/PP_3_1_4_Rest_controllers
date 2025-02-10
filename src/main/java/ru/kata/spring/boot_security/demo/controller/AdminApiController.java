@@ -1,10 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.exception.EntityNotFoundException;
 import ru.kata.spring.boot_security.demo.model.dto.UpdateUserRequest;
@@ -69,6 +66,11 @@ public class AdminApiController {
     public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+    //Получение всех ролей
+    @GetMapping("/roles")
+    public List<Role> getAllRoles() {
+        return roleService.getAllRoles();
     }
 
 }

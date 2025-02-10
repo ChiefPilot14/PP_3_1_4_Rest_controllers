@@ -76,6 +76,14 @@
             background-color: lightblue;
             color: navy;
         }
+        /* Стили для отключения интерактивности */
+        .list-group-item.disabled {
+            pointer-events: none;
+            background-color: rgba(0, 121, 72, 0.16);
+            color: #6c7576;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -196,9 +204,8 @@
                             </div>
                             <div class="mb-3 text-center">
                                 <span class="fw-bold">Role</span>
-                                <ul class="list-group list-group-flush" id="editRoleListAdd">
-                                    <li class="list-group-item" id="role-1-add" data-role-id="1" onclick="selectRole(this);">ROLE_ADMIN</li>
-                                    <li class="list-group-item" id="role-2-add" data-role-id="2" onclick="selectRole(this);">ROLE_USER</li>
+                                <ul class="list-group list-group-flush" id="role-list">
+                                    <!-- Здесь будут добавлены элементы списка -->
                                 </ul>
                             </div>
                             <div class="mb-3 text-center">
@@ -253,8 +260,7 @@
                             <div class="mb-3 text-center">
                                 <span class="fw-bold">Role</span>
                                 <ul class="list-group list-group-flush" id="editRoleListEdit">
-                                    <li class="list-group-item" id="role-1-edit" data-role-id="1" onclick="selectRole(this);">ROLE_ADMIN</li>
-                                    <li class="list-group-item" id="role-2-edit" data-role-id="2" onclick="selectRole(this);">ROLE_USER</li>
+                                    <!-- Здесь будут добавлены элементы списка -->
                                 </ul>
                             </div>
                             <div class="mb-3 text-center">
@@ -307,11 +313,11 @@
                             </div>
                             <div class="mb-3 text-center">
                                 <span class="fw-bold">Role</span>
-                                <ul class="list-group list-group-flush" id="editRoleListDelete">
-                                    <li class="list-group-item" id="role-1-delete" data-role-id="1" onclick="selectRole(this);">ROLE_ADMIN</li>
-                                    <li class="list-group-item" id="role-2-delete" data-role-id="2" onclick="selectRole(this);">ROLE_USER</li>
+                                <ul class="list-group list-group-flush list-group-item-secondary" id="deleteRoleListEdit">
+                                    <!-- Здесь будут добавлены элементы списка -->
                                 </ul>
                             </div>
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary text-bg-success">Delete</button>
@@ -332,31 +338,39 @@
 </script>
 <!--//////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
 <script>
-    // JavaScript для переключения между таблицей и формой
+    // Функция для переключения между вкладками
+    function toggleTabs(activeTabId) {
+        const tabs = ['users-tab', 'new-user-tab'];
+        const panels = ['users-table', 'new-user-form'];
+
+        tabs.forEach(tabId => {
+            const tab = document.getElementById(tabId);
+            const panel = document.getElementById(panels[tabs.indexOf(tabId)]);
+
+            if (tabId === activeTabId) {
+                tab.classList.add('active');
+                tab.classList.add('border');
+                panel.style.display = 'block'; // Показываем активный контент
+            } else {
+                tab.classList.remove('active');
+                tab.classList.remove('border');
+                panel.style.display = 'none'; // Скрываем неактивный контент
+            }
+        });
+
+        if (activeTabId === 'new-user-tab') {
+            loadRoles('role-list', () => {
+
+            }); // Загружаем роли только при переходе на вкладку создания пользователя
+        }
+    }
+    // Обработчики для ручного переключения между вкладками
     document.getElementById('users-tab').addEventListener('click', function() {
-        document.getElementById('users-table').style.display = 'block';
-        document.getElementById('new-user-form').style.display = 'none';
-
-        // Управление классами вкладок
-        this.classList.add('active');       // Активируем текущую вкладку
-        this.classList.add('border');       // Добавляем бордюр к текущей вкладке
-
-        const otherTab = document.getElementById('new-user-tab');
-        otherTab.classList.remove('active');   // Деактивируем другую вкладку
-        otherTab.classList.remove('border');   // Убираем бордюр у другой вкладки
+        toggleTabs('users-tab');
     });
 
     document.getElementById('new-user-tab').addEventListener('click', function() {
-        document.getElementById('users-table').style.display = 'none';
-        document.getElementById('new-user-form').style.display = 'block';
-
-        // Управление классами вкладок
-        this.classList.add('active');           // Активируем текущую вкладку
-        this.classList.add('border');           // Добавляем бордюр к текущей вкладке
-
-        const otherTab = document.getElementById('users-tab');
-        otherTab.classList.remove('active');     // Деактивируем другую вкладку
-        otherTab.classList.remove('border');     // Убираем бордюр у другой вкладки
+        toggleTabs('new-user-tab');
     });
 </script>
 <script>
@@ -451,9 +465,12 @@
                 $('#editUserModal').find('#editUsername').val(user.username);
                 //$('#editUserModal').find('#editPassword').val(user.password);
 
-                $('#editUserModal').find('.list-group-item').removeClass('active');
-                roles.forEach(role => {
-                    $(`#editUserModal .list-group-item[data-role-id="${role.id}"]`).addClass('active');
+                // Загружаем роли и затем отмечаем активные
+                loadRoles('editRoleListEdit', () => {
+                    $('#editUserModal').find('.list-group-item').removeClass('active');
+                    roles.forEach(role => {
+                        $(`#editUserModal .list-group-item[data-role-id="${role.id}"]`).addClass('active');
+                    });
                 });
 
                 $('#editUserModal').modal('show');
@@ -523,11 +540,13 @@
                 $('#deleteUserModal').find('#deleteAge').val(user.age);
                 $('#deleteUserModal').find('#deleteEmail').val(user.email);
                 $('#deleteUserModal').find('#deleteUsername').val(user.username);
-                //$('#editUserModal').find('#editPassword').val(user.password);
 
-                $('#deleteUserModal').find('.list-group-item').removeClass('active');
-                roles.forEach(role => {
-                    $(`#deleteUserModal .list-group-item[data-role-id="${role.id}"]`).addClass('active');
+
+                // Загружаем роли и затем отмечаем активные
+                loadRoles('deleteRoleListEdit', () => {
+                    //$('#deleteUserModal').find('.list-group-item').removeClass('active');
+                    $('#deleteUserModal').find('.list-group-item').addClass('disabled');
+
                 });
 
                 $('#deleteUserModal').modal('show');
@@ -558,16 +577,15 @@
 </script>
 <script>
     // Обработчик отправки формы добавления нового пользователя
-    $('#createUserForm').submit(function (event) {
-        event.preventDefault();// Предотвращаем стандартную отправку формы
+    $('#createUserForm').submit(function(event) {
+        event.preventDefault(); // Предотвращаем стандартную отправку формы
 
         const formData = new FormData(this);
         const selectedRoles = [];
 
-        $('#editRoleListAdd .list-group-item.active').each(function () {
+        $('#role-list .list-group-item.active').each(function() {
             selectedRoles.push($(this).data('role-id'));
         });
-        console.log(selectedRoles);
 
         const updateUserRequest = {
             user: {
@@ -580,21 +598,127 @@
             },
             roleIds: selectedRoles
         };
+
         fetch('/api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(updateUserRequest)
-        })
-            .then(response => {
-                if (response.ok) {
-                    loadUsers();
-                } else {
-                    alert('Ошибка при создании пользователя.');
+        }).then(response => {
+            if (response.ok) {
+                // Успех! Переключаемся на вкладку с таблицей пользователей
+                toggleTabs('users-tab');
+                resetForm(); // Очищаем форму
+                loadUsers(); // Обновляем список пользователей
+            } else {
+                alert('Ошибка при создании пользователя.');
+            }
+        }).catch(error => console.error('Error:', error));
+    });
+
+    // Функция для очистки формы
+    function resetForm() {
+        $('#createUserForm')[0].reset();
+        $('#role-list .list-group-item').removeClass('active');
+    }
+</script>
+<script>
+    // Функция для загрузки списка ролей
+    function loadRoles(targetElementId, callback) {
+        fetch('/api/roles')
+            .then(response => response.json())
+            .then(data => {
+                const roleListElement = document.getElementById(targetElementId);
+
+                // Очищаем список перед добавлением новых элементов
+                roleListElement.innerHTML = '';
+
+                data.forEach(role => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = role.name;
+                    li.setAttribute('id', `role-${role.id}`);
+                    li.setAttribute('data-role-id', role.id);
+                    li.onclick = function () { selectRole(this); };
+
+                    roleListElement.appendChild(li);
+                });
+
+                // Выполняем коллбек после загрузки и рендера списка ролей
+                if (callback) {
+                    callback();
                 }
             })
             .catch(error => console.error('Error:', error));
+    }
+
+    // Функция для выбора роли
+    function selectRole(element) {
+        const selectedRoleId = element.dataset.roleId;
+
+        // Меняем стиль элемента
+        if (element.classList.contains('active')) {
+            element.classList.remove('active');
+        } else {
+            element.classList.add('active');
+        }
+
+        // Обновляем скрытые поля ввода
+        updateHiddenFields(selectedRoleId);
+    }
+
+    // Функция для обновления скрытых полей ввода
+    function updateHiddenFields(selectedRoleId) {
+        const hiddenInputs = document.querySelectorAll('#role-list input[type="hidden"]');
+
+        let selectedRoles = [];
+
+        // Собираем массив текущих значений
+        hiddenInputs.forEach(input => {
+            if (input.value !== '') {
+                selectedRoles.push(input.value);
+            }
+        });
+
+        // Если выбрана новая роль, добавляем её
+        if (!selectedRoles.includes(selectedRoleId)) {
+            selectedRoles.push(selectedRoleId);
+        } else {
+            // Если роль была ранее выбрана, удаляем её
+            selectedRoles = selectedRoles.filter(id => id !== selectedRoleId);
+        }
+
+        // Очищаем предыдущие скрытые поля
+        hiddenInputs.forEach(input => {
+            input.parentNode.removeChild(input);
+        });
+
+        // Создаём новые скрытые поля
+        selectedRoles.forEach((roleId, index) => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = `selectedRoles[]`;
+            hiddenInput.value = roleId;
+            document.getElementById('role-list').appendChild(hiddenInput);
+        });
+    }
+
+    // Вызов функции загрузки ролей при переключении на вкладку
+    document.getElementById('new-user-tab').addEventListener('click', function() {
+        document.getElementById('users-table').style.display = 'none';
+        document.getElementById('new-user-form').style.display = 'block';
+
+        // Загрузить список ролей при открытии формы
+        loadRoles();  // Вызываем функцию для загрузки ролей
+
+        // Управление классами вкладок
+        this.classList.add('active');           // Активируем текущую вкладку
+        this.classList.add('border');           // Добавляем бордюр к текущей вкладке
+
+        const otherTab = document.getElementById('users-tab');
+        otherTab.classList.remove('active');     // Деактивируем другую вкладку
+        otherTab.classList.remove('border');     // Убираем бордюр у другой вкладки
     });
 </script>
 </body>
